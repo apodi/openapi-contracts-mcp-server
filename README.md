@@ -14,17 +14,17 @@ An MCP (Model Context Protocol) server for managing, browsing, and comparing Ope
 
 ## 📋 Table of Contents
 
-- [What is MCP?](#what-is-mcp)
-- [Why Use This MCP Server?](#why-use-this-mcp-server)
-- [Installation](#installation)
-- [Configuration](#configuration)
-  - [VS Code Setup](#vs-code-setup)
-  - [Claude Desktop Setup](#claude-desktop-setup)
-- [Usage](#usage)
-- [MCP Resources](#mcp-resources)
-- [MCP Tools](#mcp-tools)
-- [Project Structure](#project-structure)
-- [Examples](#examples)
+- [What is MCP?](#-what-is-mcp)
+- [Why Use This MCP Server?](#-why-use-this-mcp-server)
+- [Installation](#-installation)
+- [Configuration](#️-configuration)
+  - [VS Code Setup](#-vs-code-setup)
+  - [Claude Desktop Setup](#️-claude-desktop-setup)
+- [Usage](#-usage)
+- [MCP Resources](#-mcp-resources)
+- [MCP Tools](#️-mcp-tools)
+- [Project Structure](#-project-structure)
+- [Examples](#-examples)
 
 ## 🤔 What is MCP?
 
