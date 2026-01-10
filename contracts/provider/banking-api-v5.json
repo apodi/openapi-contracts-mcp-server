@@ -1,0 +1,635 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Banking API v5",
+    "description": "Banking API with major structural changes - breaking changes included",
+    "version": "5.0.0"
+  },
+  "paths": {
+    "/api/v2/accounts": {
+      "get": {
+        "summary": "List accounts (v2 endpoint)",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "account_type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["checking", "savings", "credit", "investment", "loan"]
+            }
+          },
+          {
+            "name": "status_filter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["active_only", "all"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "accounts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AccountV2"
+                      }
+                    },
+                    "total_count": {
+                      "type": "integer"
+                    },
+                    "page_info": {
+                      "$ref": "#/components/schemas/PaginationInfo"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/accounts/{account_id}": {
+      "get": {
+        "summary": "Get account details (v2 endpoint)",
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include_balance",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountV2"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Account not found"
+          }
+        }
+      }
+    },
+    "/api/v2/transfers": {
+      "post": {
+        "summary": "Create transfer (v2 endpoint)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferRequestV2"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Transfer created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransferV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid transfer request"
+          }
+        }
+      }
+    },
+    "/api/v2/transactions": {
+      "get": {
+        "summary": "List transactions (v2 endpoint)",
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "transaction_type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["all", "debit", "credit"]
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 200
+            }
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transactions": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TransactionV2"
+                      }
+                    },
+                    "next_page_token": {
+                      "type": "string"
+                    },
+                    "total_count": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/loans": {
+      "get": {
+        "summary": "List loans",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Loan list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Loan"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Apply for loan",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoanApplication"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Loan application submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Loan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v2/investments": {
+      "get": {
+        "summary": "List investments",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "portfolio_type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["retirement", "brokerage", "education"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Investment portfolio",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Investment"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccountV2": {
+        "type": "object",
+        "properties": {
+          "account_id": {
+            "type": "string"
+          },
+          "customer_id": {
+            "type": "string"
+          },
+          "account_type": {
+            "type": "string",
+            "enum": ["checking", "savings", "credit", "investment", "loan"]
+          },
+          "account_status": {
+            "type": "string",
+            "enum": ["active", "inactive", "frozen", "closed"]
+          },
+          "balance": {
+            "type": "object",
+            "properties": {
+              "current_balance": {
+                "type": "number",
+                "format": "decimal"
+              },
+              "available_balance": {
+                "type": "number",
+                "format": "decimal"
+              },
+              "currency_code": {
+                "type": "string",
+                "default": "USD"
+              }
+            }
+          },
+          "account_nickname": {
+            "type": "string"
+          },
+          "opened_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "last_activity_date": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": ["account_id", "customer_id", "account_type", "account_status"]
+      },
+      "PaginationInfo": {
+        "type": "object",
+        "properties": {
+          "page_number": {
+            "type": "integer"
+          },
+          "page_size": {
+            "type": "integer"
+          },
+          "total_pages": {
+            "type": "integer"
+          },
+          "has_next": {
+            "type": "boolean"
+          },
+          "has_previous": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TransferRequestV2": {
+        "type": "object",
+        "properties": {
+          "source_account_id": {
+            "type": "string"
+          },
+          "destination_account_id": {
+            "type": "string"
+          },
+          "transfer_amount": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0.01
+          },
+          "transfer_currency": {
+            "type": "string",
+            "default": "USD"
+          },
+          "transfer_description": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "scheduled_date": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": ["source_account_id", "destination_account_id", "transfer_amount"]
+      },
+      "TransferV2": {
+        "type": "object",
+        "properties": {
+          "transfer_id": {
+            "type": "string"
+          },
+          "source_account_id": {
+            "type": "string"
+          },
+          "destination_account_id": {
+            "type": "string"
+          },
+          "transfer_amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "transfer_status": {
+            "type": "string",
+            "enum": ["pending", "completed", "failed", "cancelled"]
+          },
+          "created_timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "processed_timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["transfer_id", "transfer_status"]
+      },
+      "TransactionV2": {
+        "type": "object",
+        "properties": {
+          "transaction_id": {
+            "type": "string"
+          },
+          "account_id": {
+            "type": "string"
+          },
+          "transaction_type": {
+            "type": "string",
+            "enum": ["debit", "credit", "transfer", "fee", "interest", "adjustment"]
+          },
+          "transaction_amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "transaction_currency": {
+            "type": "string",
+            "default": "USD"
+          },
+          "transaction_description": {
+            "type": "string"
+          },
+          "transaction_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "merchant_name": {
+            "type": "string"
+          },
+          "merchant_category": {
+            "type": "string"
+          },
+          "transaction_category": {
+            "type": "string",
+            "enum": ["shopping", "dining", "transport", "entertainment", "utilities", "healthcare", "other"]
+          }
+        },
+        "required": ["transaction_id", "account_id", "transaction_type", "transaction_amount", "transaction_date"]
+      },
+      "Loan": {
+        "type": "object",
+        "properties": {
+          "loan_id": {
+            "type": "string"
+          },
+          "customer_id": {
+            "type": "string"
+          },
+          "loan_type": {
+            "type": "string",
+            "enum": ["personal", "mortgage", "auto", "business"]
+          },
+          "loan_amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "outstanding_balance": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "interest_rate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "loan_status": {
+            "type": "string",
+            "enum": ["active", "paid_off", "defaulted", "pending"]
+          },
+          "monthly_payment": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "next_payment_date": {
+            "type": "string",
+            "format": "date"
+          }
+        },
+        "required": ["loan_id", "customer_id", "loan_type", "loan_amount", "loan_status"]
+      },
+      "LoanApplication": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "type": "string"
+          },
+          "loan_type": {
+            "type": "string",
+            "enum": ["personal", "mortgage", "auto", "business"]
+          },
+          "requested_amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "loan_term_months": {
+            "type": "integer"
+          },
+          "purpose": {
+            "type": "string"
+          }
+        },
+        "required": ["customer_id", "loan_type", "requested_amount"]
+      },
+      "Investment": {
+        "type": "object",
+        "properties": {
+          "investment_id": {
+            "type": "string"
+          },
+          "customer_id": {
+            "type": "string"
+          },
+          "portfolio_type": {
+            "type": "string",
+            "enum": ["retirement", "brokerage", "education"]
+          },
+          "total_value": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency_code": {
+            "type": "string",
+            "default": "USD"
+          },
+          "holdings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Holding"
+            }
+          },
+          "performance": {
+            "$ref": "#/components/schemas/Performance"
+          }
+        },
+        "required": ["investment_id", "customer_id", "portfolio_type", "total_value"]
+      },
+      "Holding": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["stock", "bond", "etf", "mutual_fund"]
+          },
+          "quantity": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "average_cost": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "current_value": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "gain_loss": {
+            "type": "number",
+            "format": "decimal"
+          }
+        },
+        "required": ["symbol", "quantity", "current_value"]
+      },
+      "Performance": {
+        "type": "object",
+        "properties": {
+          "one_day_change": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "one_week_change": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "one_month_change": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "one_year_change": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "inception_return": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      }
+    }
+  }
+}

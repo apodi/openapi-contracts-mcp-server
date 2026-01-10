@@ -1,0 +1,634 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Banking API",
+    "description": "A comprehensive banking API for account management, transactions, and payments",
+    "version": "2.0.0",
+    "contact": {
+      "name": "Banking API Support",
+      "email": "support@bankapi.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.bank.com/v2",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/accounts": {
+      "get": {
+        "summary": "List customer accounts",
+        "description": "Retrieve all accounts for the authenticated customer",
+        "operationId": "listAccounts",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["active", "inactive", "frozen"]
+            },
+            "description": "Filter accounts by status"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of accounts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Account"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new account",
+        "description": "Open a new bank account for the customer",
+        "operationId": "createAccount",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}": {
+      "get": {
+        "summary": "Get account details",
+        "description": "Retrieve detailed information about a specific account",
+        "operationId": "getAccount",
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier of the account"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update account",
+        "description": "Update account information",
+        "operationId": "updateAccount",
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/balance": {
+      "get": {
+        "summary": "Get account balance",
+        "description": "Retrieve the current balance of an account",
+        "operationId": "getAccountBalance",
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account balance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Balance"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transfers": {
+      "post": {
+        "summary": "Transfer money between accounts",
+        "description": "Transfer funds from one account to another",
+        "operationId": "transferMoney",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transfer completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Transfer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments": {
+      "post": {
+        "summary": "Make a payment",
+        "description": "Make a payment to a merchant or bill",
+        "operationId": "makePayment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment processed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Payment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transactions": {
+      "get": {
+        "summary": "List transactions",
+        "description": "Retrieve transaction history with enhanced filtering",
+        "operationId": "listTransactions",
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by account ID"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 100
+            },
+            "description": "Maximum number of transactions to return"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["transfer", "payment", "fee", "interest", "deposit"]
+            },
+            "description": "Filter by transaction category"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of transactions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Transaction"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cards": {
+      "get": {
+        "summary": "List debit/credit cards",
+        "description": "Retrieve all cards associated with customer accounts",
+        "operationId": "listCards",
+        "responses": {
+          "200": {
+            "description": "List of cards",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Card"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Request new card",
+        "description": "Request a new debit or credit card",
+        "operationId": "requestCard",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CardRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Card request submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Card"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Account": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique account identifier"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["checking", "savings", "credit"],
+            "description": "Type of account"
+          },
+          "balance": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Current account balance"
+          },
+          "currency": {
+            "type": "string",
+            "default": "USD",
+            "description": "Account currency"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "frozen"],
+            "description": "Account status"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "User-defined account nickname"
+          }
+        },
+        "required": ["id", "type", "balance", "status"]
+      },
+      "AccountRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["checking", "savings"],
+            "description": "Type of account to create"
+          },
+          "initialDeposit": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0,
+            "description": "Initial deposit amount"
+          },
+          "nickname": {
+            "type": "string",
+            "maxLength": 50,
+            "description": "Optional account nickname"
+          }
+        },
+        "required": ["type"]
+      },
+      "AccountUpdate": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "maxLength": 50,
+            "description": "Update account nickname"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive"],
+            "description": "Update account status"
+          }
+        }
+      },
+      "Balance": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "available": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "current": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string",
+            "default": "USD"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When balance was last updated"
+          }
+        }
+      },
+      "TransferRequest": {
+        "type": "object",
+        "properties": {
+          "fromAccountId": {
+            "type": "string",
+            "description": "Source account ID"
+          },
+          "toAccountId": {
+            "type": "string",
+            "description": "Destination account ID"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0.01,
+            "description": "Transfer amount"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "Transfer description"
+          },
+          "scheduledDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Optional scheduled transfer date"
+          }
+        },
+        "required": ["fromAccountId", "toAccountId", "amount"]
+      },
+      "Transfer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Transfer identifier"
+          },
+          "fromAccountId": {
+            "type": "string"
+          },
+          "toAccountId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "completed", "failed", "scheduled"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "scheduledDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "PaymentRequest": {
+        "type": "object",
+        "properties": {
+          "fromAccountId": {
+            "type": "string",
+            "description": "Source account ID"
+          },
+          "toPayeeId": {
+            "type": "string",
+            "description": "Payee identifier"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0.01
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "category": {
+            "type": "string",
+            "enum": ["utilities", "rent", "insurance", "shopping", "other"]
+          }
+        },
+        "required": ["fromAccountId", "toPayeeId", "amount"]
+      },
+      "Payment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "fromAccountId": {
+            "type": "string"
+          },
+          "toPayeeId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "completed", "failed"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["debit", "credit"]
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "description": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["transfer", "payment", "fee", "interest", "deposit"]
+          },
+          "merchant": {
+            "type": "string",
+            "description": "Merchant name for payments"
+          }
+        }
+      },
+      "Card": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["debit", "credit"]
+          },
+          "lastFour": {
+            "type": "string",
+            "pattern": "^\\d{4}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "blocked", "expired"]
+          },
+          "expiryMonth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          "expiryYear": {
+            "type": "integer",
+            "minimum": 2024
+          }
+        }
+      },
+      "CardRequest": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "description": "Account to link the card to"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["debit", "credit"],
+            "description": "Type of card to request"
+          },
+          "design": {
+            "type": "string",
+            "enum": ["standard", "premium", "travel"],
+            "description": "Card design preference"
+          }
+        },
+        "required": ["accountId", "type"]
+      }
+    }
+  }
+}

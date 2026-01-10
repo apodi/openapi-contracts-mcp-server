@@ -1,0 +1,1053 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Banking API",
+    "description": "A comprehensive banking API for account management, transactions, payments, cards, and loans",
+    "version": "4.0.0",
+    "contact": {
+      "name": "Banking API Support",
+      "email": "support@bankapi.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.bank.com/v4",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/accounts": {
+      "get": {
+        "summary": "List customer accounts",
+        "description": "Retrieve all accounts for the authenticated customer with advanced filtering",
+        "operationId": "listAccounts",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["active", "inactive", "frozen"]
+            },
+            "description": "Filter accounts by status"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["checking", "savings", "credit"]
+            },
+            "description": "Filter accounts by type"
+          },
+          {
+            "name": "balanceMin",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "format": "decimal"
+            },
+            "description": "Minimum balance filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of accounts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Account"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create new account",
+        "description": "Open a new bank account for the customer",
+        "operationId": "createAccount",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}": {
+      "get": {
+        "summary": "Get account details",
+        "description": "Retrieve detailed information about a specific account",
+        "operationId": "getAccount",
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier of the account"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update account",
+        "description": "Update account information",
+        "operationId": "updateAccount",
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Close account",
+        "description": "Close an account (requires zero balance)",
+        "operationId": "closeAccount",
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Account closed successfully"
+          }
+        }
+      }
+    },
+    "/accounts/{accountId}/balance": {
+      "get": {
+        "summary": "Get account balance",
+        "description": "Retrieve the current balance of an account",
+        "operationId": "getAccountBalance",
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account balance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Balance"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transfers": {
+      "post": {
+        "summary": "Transfer money between accounts",
+        "description": "Transfer funds from one account to another with enhanced validation",
+        "operationId": "transferMoney",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transfer completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Transfer"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Transfer validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/payments": {
+      "post": {
+        "summary": "Make a payment",
+        "description": "Make a payment to a merchant or bill",
+        "operationId": "makePayment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment processed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Payment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transactions": {
+      "get": {
+        "summary": "List transactions",
+        "description": "Retrieve transaction history with enhanced filtering and pagination",
+        "operationId": "listTransactions",
+        "parameters": [
+          {
+            "name": "accountId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by account ID"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "maximum": 100
+            },
+            "description": "Maximum number of transactions to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            },
+            "description": "Number of transactions to skip"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["transfer", "payment", "fee", "interest", "deposit"]
+            },
+            "description": "Filter by transaction category"
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter transactions from this date"
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter transactions until this date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of transactions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transactions": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Transaction"
+                      }
+                    },
+                    "totalCount": {
+                      "type": "integer"
+                    },
+                    "hasMore": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cards": {
+      "get": {
+        "summary": "List debit/credit cards",
+        "description": "Retrieve all cards associated with customer accounts",
+        "operationId": "listCards",
+        "responses": {
+          "200": {
+            "description": "List of cards",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Card"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Request new card",
+        "description": "Request a new debit or credit card",
+        "operationId": "requestCard",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CardRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Card request submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Card"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loans": {
+      "get": {
+        "summary": "List customer loans",
+        "description": "Retrieve all loans for the authenticated customer",
+        "operationId": "listLoans",
+        "responses": {
+          "200": {
+            "description": "List of loans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Loan"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Apply for a loan",
+        "description": "Submit a loan application",
+        "operationId": "applyForLoan",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoanApplication"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Loan application submitted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Loan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loans/{loanId}/payments": {
+      "post": {
+        "summary": "Make loan payment",
+        "description": "Make a payment towards a loan",
+        "operationId": "makeLoanPayment",
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoanPayment"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment processed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanPaymentResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/investments": {
+      "get": {
+        "summary": "List customer investments",
+        "description": "Retrieve all investment accounts for the authenticated customer",
+        "operationId": "listInvestments",
+        "responses": {
+          "200": {
+            "description": "List of investments",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Investment"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create investment account",
+        "description": "Open a new investment account",
+        "operationId": "createInvestment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvestmentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Investment account created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Investment"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Account": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique account identifier"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["checking", "savings", "credit"],
+            "description": "Type of account"
+          },
+          "balance": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Current account balance"
+          },
+          "currency": {
+            "type": "string",
+            "default": "USD",
+            "description": "Account currency"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "frozen"],
+            "description": "Account status"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "User-defined account nickname"
+          },
+          "openedDate": {
+            "type": "string",
+            "format": "date",
+            "description": "When the account was opened"
+          }
+        },
+        "required": ["id", "type", "balance", "status"]
+      },
+      "AccountRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["checking", "savings"],
+            "description": "Type of account to create"
+          },
+          "initialDeposit": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0,
+            "description": "Initial deposit amount"
+          },
+          "nickname": {
+            "type": "string",
+            "maxLength": 50,
+            "description": "Optional account nickname"
+          }
+        },
+        "required": ["type"]
+      },
+      "AccountUpdate": {
+        "type": "object",
+        "properties": {
+          "nickname": {
+            "type": "string",
+            "maxLength": 50,
+            "description": "Update account nickname"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive"],
+            "description": "Update account status"
+          }
+        }
+      },
+      "Balance": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "available": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "current": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string",
+            "default": "USD"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When balance was last updated"
+          }
+        }
+      },
+      "TransferRequest": {
+        "type": "object",
+        "properties": {
+          "fromAccountId": {
+            "type": "string",
+            "description": "Source account ID"
+          },
+          "toAccountId": {
+            "type": "string",
+            "description": "Destination account ID"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0.01,
+            "maximum": 10000,
+            "description": "Transfer amount"
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "Transfer description"
+          },
+          "scheduledDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Optional scheduled transfer date"
+          }
+        },
+        "required": ["fromAccountId", "toAccountId", "amount"]
+      },
+      "Transfer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Transfer identifier"
+          },
+          "fromAccountId": {
+            "type": "string"
+          },
+          "toAccountId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "completed", "failed", "scheduled"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "scheduledDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "fee": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Transfer fee charged"
+          }
+        }
+      },
+      "PaymentRequest": {
+        "type": "object",
+        "properties": {
+          "fromAccountId": {
+            "type": "string",
+            "description": "Source account ID"
+          },
+          "toPayeeId": {
+            "type": "string",
+            "description": "Payee identifier"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0.01
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "category": {
+            "type": "string",
+            "enum": ["utilities", "rent", "insurance", "shopping", "other"]
+          }
+        },
+        "required": ["fromAccountId", "toPayeeId", "amount"]
+      },
+      "Payment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "fromAccountId": {
+            "type": "string"
+          },
+          "toPayeeId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "completed", "failed"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["debit", "credit"]
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "description": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["transfer", "payment", "fee", "interest", "deposit"]
+          },
+          "merchant": {
+            "type": "string",
+            "description": "Merchant name for payments"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "User-defined tags for categorization"
+          }
+        }
+      },
+      "Card": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["debit", "credit"]
+          },
+          "lastFour": {
+            "type": "string",
+            "pattern": "^\\d{4}$"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "blocked", "expired"]
+          },
+          "expiryMonth": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          "expiryYear": {
+            "type": "integer",
+            "minimum": 2024
+          },
+          "dailyLimit": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Daily spending limit"
+          }
+        }
+      },
+      "CardRequest": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "description": "Account to link the card to"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["debit", "credit"],
+            "description": "Type of card to request"
+          },
+          "design": {
+            "type": "string",
+            "enum": ["standard", "premium", "travel"],
+            "description": "Card design preference"
+          },
+          "dailyLimit": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 100,
+            "maximum": 10000,
+            "description": "Requested daily spending limit"
+          }
+        },
+        "required": ["accountId", "type"]
+      },
+      "Loan": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["personal", "auto", "home", "student"]
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "balance": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "interestRate": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "termMonths": {
+            "type": "integer"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "approved", "active", "paid_off", "defaulted"]
+          },
+          "monthlyPayment": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "nextPaymentDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "LoanApplication": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["personal", "auto", "home", "student"]
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 1000,
+            "maximum": 500000
+          },
+          "purpose": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Purpose of the loan"
+          },
+          "termMonths": {
+            "type": "integer",
+            "enum": [12, 24, 36, 48, 60, 72]
+          }
+        },
+        "required": ["type", "amount", "termMonths"]
+      },
+      "LoanPayment": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 1
+          },
+          "fromAccountId": {
+            "type": "string",
+            "description": "Account to debit payment from"
+          },
+          "paymentType": {
+            "type": "string",
+            "enum": ["scheduled", "extra", "full"],
+            "default": "scheduled"
+          }
+        },
+        "required": ["amount", "fromAccountId"]
+      },
+      "LoanPaymentResult": {
+        "type": "object",
+        "properties": {
+          "loanId": {
+            "type": "string"
+          },
+          "paymentId": {
+            "type": "string"
+          },
+          "amountPaid": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "remainingBalance": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "nextPaymentDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "Investment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["brokerage", "retirement", "education"]
+          },
+          "balance": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "currency": {
+            "type": "string",
+            "default": "USD"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "inactive", "frozen"]
+          },
+          "openedDate": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "InvestmentRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["brokerage", "retirement", "education"]
+          },
+          "initialDeposit": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 100
+          }
+        },
+        "required": ["type"]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object"
+          }
+        },
+        "required": ["code", "message"]
+      }
+    }
+  }
+}

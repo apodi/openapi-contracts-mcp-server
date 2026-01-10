@@ -1,0 +1,21 @@
+{
+  "servers": {
+    "openapi-contract-navigator": {
+      "command": "npm",
+      "args": [
+        "run",
+        "dev"
+      ],
+      "env": {
+        "OPENAPI_CONTRACT_DIR": "/Users/apoorva/Lab/mcp/openapi-contracts-mcp-server/contracts",
+        "S3_ENABLED": "true",
+        "AWS_REGION": "eu-west-2",
+        "S3_BUCKET": "openapi-contracts-adx",
+        "S3_PREFIX": "openapi-contracts",
+        "DEBUG_MCP": "false"
+      },
+      "cwd": "."
+    }
+  }
+}
+
