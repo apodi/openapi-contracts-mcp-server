@@ -10,6 +10,8 @@
         "OPENAPI_CONTRACT_DIR": "/Users/apoorva/Lab/mcp/openapi-contracts-mcp-server/contracts",
         "S3_ENABLED": "true",
         "AWS_REGION": "eu-west-2",
+        "AWS_ACCESS_KEY_ID": "<your-aws-access-key-id>",
+        "AWS_SECRET_ACCESS_KEY": "<your-aws-secret-access-key>",
         "S3_BUCKET": "openapi-contracts-adx",
         "S3_PREFIX": "openapi-contracts",
         "DEBUG_MCP": "false"
