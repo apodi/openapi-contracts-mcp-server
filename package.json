@@ -1,6 +1,7 @@
 {
   "name": "openapi-contracts-mcp-server",
   "version": "1.0.0",
+  "license": "MIT",
   "type": "module",
   "bin": {
     "openapi-contract-navigator": "build/index.js"
